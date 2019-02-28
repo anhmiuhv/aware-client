@@ -740,6 +740,7 @@ public class Scheduler extends Aware_Sensor {
                                 Log.d(TAG, "Triggering scheduled task: " + schedule.getScheduleID() + " in package: " + getPackageName());
                             performAction(schedule);
                         }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -819,7 +820,7 @@ public class Scheduler extends Aware_Sensor {
 
             // This is a scheduled task on a specific timestamp.
             // NOTE: Once triggered, it's deleted from the database automatically.
-            if (schedule.getTimer() != -1 && last_triggered == 0) { //not been triggered yet
+            if (schedule.getTimer() != -1) { //not been triggered yet
                 Calendar schedulerTimer = Calendar.getInstance();
                 schedulerTimer.setTimeInMillis(schedule.getTimer());
 
@@ -840,7 +841,7 @@ public class Scheduler extends Aware_Sensor {
             if (last_triggered != 0) {
                 previous = Calendar.getInstance();
                 previous.setTimeInMillis(last_triggered);
-                if (DEBUG) Log.i(TAG, "Scheduler last triggered: " + previous.getTime().toString());
+                if (DEBUG) Log.i(TAG, "Scheduler last triggered: " + String.valueOf(last_triggered));
             }
 
             Boolean execute_interval = null;

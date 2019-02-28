@@ -100,10 +100,12 @@ import dalvik.system.DexFile;
  * @author denzil
  */
 public class Aware extends Service {
+
+    private static boolean EXTRA_FEATURE = true;
     /**
      * Debug flag (default = false).
      */
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
     /**
      * Debug tag (default = "AWARE").
@@ -125,6 +127,8 @@ public class Aware extends Service {
      * - Sends the data to the defined webserver
      */
     public static final String ACTION_AWARE_SYNC_DATA = "ACTION_AWARE_SYNC_DATA";
+
+
 
     /**
      * Received broadcast on all modules
@@ -253,6 +257,9 @@ public class Aware extends Service {
         return null;
     }
 
+    public static final String AWARE_ON = "AWARE_ON";
+    public static final String AWARE_OFF = "AWARE_OFF";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -275,6 +282,8 @@ public class Aware extends Service {
         IntentFilter awareActions = new IntentFilter();
         awareActions.addAction(Aware.ACTION_AWARE_SYNC_DATA);
         awareActions.addAction(Aware.ACTION_QUIT_STUDY);
+        awareActions.addAction(Aware.AWARE_ON);
+        awareActions.addAction(Aware.AWARE_OFF);
         registerReceiver(aware_BR, awareActions);
 
         IntentFilter foreground = new IntentFilter();
@@ -358,6 +367,12 @@ public class Aware extends Service {
 
     public void foreground(boolean enable) {
         if (enable) {
+            Intent startIMU = new Intent(Aware.AWARE_ON);
+            PendingIntent start = PendingIntent.getBroadcast(this, 1996, startIMU, 0);
+
+            Intent stopIMU = new Intent(Aware.AWARE_OFF);
+            PendingIntent off = PendingIntent.getBroadcast(this, 1997, stopIMU, 0);
+
             Intent aware = new Intent(this, Aware.class);
             PendingIntent onTap = PendingIntent.getService(this, 0, aware, 0);
 
@@ -369,6 +384,10 @@ public class Aware extends Service {
             mBuilder.setOnlyAlertOnce(true);
             mBuilder.setContentIntent(onTap);
             mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
+            if (EXTRA_FEATURE) {
+                mBuilder.addAction(R.drawable.ic_action_aware_studies, "Start", start);
+                mBuilder.addAction(R.drawable.ic_action_aware_studies, "Stop", off);
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 mBuilder.setChannelId(Aware.AWARE_NOTIFICATION_ID);
@@ -2150,7 +2169,31 @@ public class Aware extends Service {
                 sync.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
                 ContentResolver.requestSync(Aware.getAWAREAccount(context), Aware_Provider.getAuthority(context), sync);
             }
+            if (intent.getAction().equals(Aware.AWARE_ON)) {
+                startIMU(context.getApplicationContext());
+                Aware.debug(context, "start IMU");
+                controlNoti(context, "start IMU");
+
+            }
+            if (intent.getAction().equals(Aware.AWARE_OFF)) {
+                stop(context.getApplicationContext());
+                Aware.debug(context, "stop IMU");
+                controlNoti(context, "stop IMU");
+            }
         }
+    }
+
+    private static void controlNoti(Context context, String title) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, Aware.AWARE_NOTIFICATION_ID);
+        mBuilder.setSmallIcon(R.drawable.ic_stat_aware_recharge);
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(title);
+        mBuilder.setAutoCancel(true);
+        mBuilder.setOnlyAlertOnce(true); //notify the user only once
+        mBuilder.setDefaults(NotificationCompat.DEFAULT_ALL);
+
+        NotificationManager notManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notManager.notify(Aware.AWARE_BATTERY_OPTIMIZATION_ID, mBuilder.build());
     }
 
     /**
@@ -2318,6 +2361,35 @@ public class Aware extends Service {
     public static void startAWARE(Context context) {
 
         startScheduler(context);
+        start(context);
+    }
+
+    private static void stop(Context context) {
+        stopAccelerometer(context);
+        stopGyroscope(context);
+        stopSignificant(context);
+        stopScreen(context);
+        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "false");
+        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "false");
+
+    }
+
+    private static void startIMU(Context context) {
+        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "true");
+        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "true");
+        if (Aware.getSetting(context, Aware_Preferences.STATUS_ACCELEROMETER).equals("true")) {
+            startAccelerometer(context);
+        } else stopAccelerometer(context);
+
+        if (Aware.getSetting(context, Aware_Preferences.STATUS_GYROSCOPE).equals("true")) {
+            startGyroscope(context);
+        } else stopGyroscope(context);
+        if (Aware.getSetting(context, Aware_Preferences.STATUS_SIGNIFICANT_MOTION).equals("true")) {
+            startSignificant(context);
+        } else stopSignificant(context);
+    }
+
+    private static void start(Context context) {
 
         if (Aware.getSetting(context, Aware_Preferences.STATUS_SIGNIFICANT_MOTION).equals("true")) {
             startSignificant(context);
