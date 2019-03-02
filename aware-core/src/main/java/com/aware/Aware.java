@@ -2386,16 +2386,12 @@ public class Aware extends Service {
         stopGyroscope(context);
         stopSignificant(context);
         stopScreen(context);
-        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "false");
-        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "false");
         context.sendBroadcast(new Intent(ACTION_AWARE_PRIORITY_FOREGROUND));
 
     }
 
     private static void startIMU(Context context) {
         running = true;
-        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "true");
-        Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "true");
         if (Aware.getSetting(context, Aware_Preferences.STATUS_ACCELEROMETER).equals("true")) {
             startAccelerometer(context);
         } else stopAccelerometer(context);
