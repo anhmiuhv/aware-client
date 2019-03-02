@@ -379,8 +379,7 @@ public class Aware extends Service {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, Aware.AWARE_NOTIFICATION_ID);
             mBuilder.setSmallIcon(R.drawable.ic_action_aware_studies);
             mBuilder.setContentTitle(getApplicationContext().getResources().getString(R.string.foreground_notification_title));
-            mBuilder.setContentText(running ? getApplicationContext().getResources().getString(R.string.foreground_notification_text)
-                    : getApplicationContext().getResources().getString(R.string.foreground_notification_text_not));
+            mBuilder.setContentText(getApplicationContext().getResources().getString(R.string.foreground_notification_text));
             mBuilder.setOngoing(true);
             mBuilder.setOnlyAlertOnce(true);
             mBuilder.setContentIntent(onTap);
@@ -865,12 +864,10 @@ public class Aware extends Service {
             ComponentName componentName = null;
             if (packageInfo.versionName.equals("bundled")) {
                 componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
-                if (Aware.DEBUG)
-                    Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
+                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
             } else {
                 componentName = new ComponentName(package_name, package_name + ".Plugin");
-                if (Aware.DEBUG)
-                    Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
+                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
             }
 
             Intent pluginIntent = new Intent();
@@ -2378,24 +2375,19 @@ public class Aware extends Service {
 
         startScheduler(context);
         start(context);
-        stop(context);
     }
-    private static boolean running = true;
 
     private static void stop(Context context) {
-        running = false;
         stopAccelerometer(context);
         stopGyroscope(context);
         stopSignificant(context);
         stopScreen(context);
         Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "false");
         Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "false");
-        context.sendBroadcast(new Intent(ACTION_AWARE_PRIORITY_FOREGROUND));
 
     }
 
     private static void startIMU(Context context) {
-        running = true;
         Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, "true");
         Aware.setSetting(context.getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, "true");
         if (Aware.getSetting(context, Aware_Preferences.STATUS_ACCELEROMETER).equals("true")) {
@@ -2408,17 +2400,9 @@ public class Aware extends Service {
         if (Aware.getSetting(context, Aware_Preferences.STATUS_SIGNIFICANT_MOTION).equals("true")) {
             startSignificant(context);
         } else stopSignificant(context);
-
-        if (Aware.getSetting(context, Aware_Preferences.STATUS_SCREEN).equals("true")) {
-            startScreen(context);
-        } else stopScreen(context);
-        context.sendBroadcast(new Intent(ACTION_AWARE_PRIORITY_FOREGROUND));
-
-
     }
 
     private static void start(Context context) {
-        running = true;
 
         if (Aware.getSetting(context, Aware_Preferences.STATUS_SIGNIFICANT_MOTION).equals("true")) {
             startSignificant(context);

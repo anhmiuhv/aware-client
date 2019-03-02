@@ -101,11 +101,11 @@ import dalvik.system.DexFile;
  */
 public class Aware extends Service {
 
-    private static boolean EXTRA_FEATURE = true;
+    private static boolean EXTRA_FEATURE = false;
     /**
      * Debug flag (default = false).
      */
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     /**
      * Debug tag (default = "AWARE").
