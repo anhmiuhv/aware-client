@@ -101,7 +101,7 @@ import dalvik.system.DexFile;
  */
 public class Aware extends Service {
 
-    private static boolean EXTRA_FEATURE = true;
+    private static boolean EXTRA_FEATURE = false;
     /**
      * Debug flag (default = false).
      */
@@ -2375,10 +2375,8 @@ public class Aware extends Service {
      * Start core and active services
      */
     public static void startAWARE(Context context) {
-
         startScheduler(context);
         start(context);
-        stop(context);
     }
     private static boolean running = true;
 

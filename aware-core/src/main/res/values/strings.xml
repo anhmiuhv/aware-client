@@ -55,5 +55,6 @@
     <string name="sensor_communications">Communications (call/text)</string>
     <string name="sensor_keyboard">Keyboard</string>
     <string name="sensor_significant">Significant motion</string>
+    <string name="foreground_notification_text_not">Data collection off</string>
 
 </resources>
