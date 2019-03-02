@@ -2185,13 +2185,13 @@ public class Aware extends Service {
                 sync.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
                 ContentResolver.requestSync(Aware.getAWAREAccount(context), Aware_Provider.getAuthority(context), sync);
             }
-            if (intent.getAction().equals(Aware.AWARE_ON)) {
+            if (intent.getAction().equals(Aware.AWARE_ON) && !running) {
                 startIMU(context.getApplicationContext());
                 Aware.debug(context, "start IMU");
                 controlNoti(context, "start IMU");
 
             }
-            if (intent.getAction().equals(Aware.AWARE_OFF)) {
+            if (intent.getAction().equals(Aware.AWARE_OFF) && running) {
                 stop(context.getApplicationContext());
                 Aware.debug(context, "stop IMU");
                 controlNoti(context, "stop IMU");
